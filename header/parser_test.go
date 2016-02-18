@@ -13,4 +13,10 @@ func TestParse(t *testing.T) {
 	assert.Equal(t, false, m["fortran_order"])
 	assert.Equal(t, 51, m["shape"].(*Dim).x)
 	assert.Equal(t, 3000, m["shape"].(*Dim).y)
+
+	m = Parse(strings.NewReader("{ 'descr' : '<f4', 'fortran_order': False, 'shape': (51,), }"))
+	assert.Equal(t, "<f4", m["descr"])
+	assert.Equal(t, false, m["fortran_order"])
+	assert.Equal(t, 51, m["shape"].(*Dim).x)
+	assert.Equal(t, 0, m["shape"].(*Dim).y)
 }

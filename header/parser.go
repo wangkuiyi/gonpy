@@ -58,9 +58,14 @@ func Parse(r io.Reader) map[string]interface{} {
 		case int('('):
 			x := expect(num).num
 			expect(int(','))
-			y := expect(num).num
-			expect(int(')'))
-			ret[key] = &Dim{x: x, y: y}
+			if t := p.next(); t.val == int(')') {
+				ret[key] = &Dim{x: x, y: 0}
+			} else {
+				p.peek = t
+				y := expect(num).num
+				expect(int(')'))
+				ret[key] = &Dim{x: x, y: y}
+			}
 		}
 
 		expect(int(','))
