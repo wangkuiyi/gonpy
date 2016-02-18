@@ -11,12 +11,7 @@ import (
 	"github.com/wangkuiyi/gonpy/header"
 )
 
-type FMatrix struct {
-	*header.Shape
-	Data []float64
-}
-
-func Load(r *bufio.Reader) (matrix *FMatrix, err error) {
+func Load(r *bufio.Reader) (matrix *Matrix, err error) {
 	defer func() {
 		// gonpy/header.Parse calls lexer and parser, which panic for errors.
 		if e := recover(); e != nil {
@@ -43,7 +38,7 @@ func Load(r *bufio.Reader) (matrix *FMatrix, err error) {
 	h := header.Parse(bytes.NewReader(headerBuf))
 	dtype := h["descr"].(string)
 	shape := h["shape"].(*header.Shape)
-	ret := &FMatrix{
+	ret := &Matrix{
 		Shape: shape,
 		Data:  make([]float64, shape.Row*shape.Col),
 	}
@@ -55,7 +50,6 @@ func Load(r *bufio.Reader) (matrix *FMatrix, err error) {
 			}
 		}
 	} else {
-		fmt.Println("fortran_order is false")
 		for row := 0; row < shape.Row; row++ {
 			for col := 0; col < shape.Col; col++ {
 				ret.Data[row*shape.Col+col] = readElement(r, dtype)
