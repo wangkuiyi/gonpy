@@ -14,7 +14,7 @@ func TestLoad1DInt64File(t *testing.T) {
 		m, e := Load(bufio.NewReader(r))
 		Must(e)
 		return m
-	}).(*FMatrix)
+	}).(*Matrix)
 
 	assert.Equal(t, 10, m.Row)
 	assert.Equal(t, 1, m.Col)
@@ -28,7 +28,7 @@ func TestLoad2DFloat64File(t *testing.T) {
 		m, e := Load(bufio.NewReader(r))
 		Must(e)
 		return m
-	}).(*FMatrix)
+	}).(*Matrix)
 
 	assert.Equal(t, 2, m.Row)
 	assert.Equal(t, 3, m.Col)
