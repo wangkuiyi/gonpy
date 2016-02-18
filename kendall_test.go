@@ -28,3 +28,15 @@ func TestKendallTau(t *testing.T) {
 	assert.Equal(t, int64(3), KendallTau(rank1, rank2))
 	assert.Equal(t, int64(3), KendallTau(rank2, rank1))
 }
+
+func TestKendalTau(t *testing.T) {
+	columns := make([]*Column, mat2d.Shape.Col)
+
+	for col := 0; col < mat2d.Shape.Col; col++ {
+		columns[col] = NewColumn(mat2d, col)
+	}
+
+	assert.Equal(t, int64(0), KendallTau(columns[0].Rank(), columns[0].Rank()))
+	assert.Equal(t, int64(0), KendallTau(columns[0].Rank(), columns[1].Rank()))
+	assert.Equal(t, int64(0), KendallTau(columns[0].Rank(), columns[2].Rank()))
+}
