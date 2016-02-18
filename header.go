@@ -37,7 +37,7 @@ func newLexer(r io.Reader) *lexer {
 }
 
 // Lex returns the next token.
-func (x *lexer) Lex() token {
+func (x *lexer) lex() token {
 	for {
 		switch c := x.next(); c {
 		case eof:
@@ -52,7 +52,7 @@ func (x *lexer) Lex() token {
 			return x.sqstr()
 		case ' ', '\t', '\n', '\r':
 		default:
-			log.Printf("unrecognized character %q", c)
+			log.Panicf("unrecognized character %q", c)
 		}
 	}
 }
@@ -167,6 +167,8 @@ L:
 			}
 		case '\'':
 			break L
+		case eof:
+			log.Panicf("Unexpected eof in sqstr")
 		default:
 			add(&b, c)
 		}
