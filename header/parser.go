@@ -1,16 +1,13 @@
 package header
 
-import (
-	"io"
-	"log"
-)
+import "log"
 
 type parser struct {
 	*lexer
 	peek token
 }
 
-func newParser(r io.Reader) *parser {
+func newParser(r runeReader) *parser {
 	return &parser{
 		lexer: newLexer(r),
 		peek:  token{val: eof},
@@ -27,11 +24,11 @@ func (p *parser) next() token {
 	return p.lex()
 }
 
-type Dim struct {
-	x, y int
+type Shape struct {
+	Row, Col int
 }
 
-func Parse(r io.Reader) map[string]interface{} {
+func Parse(r runeReader) map[string]interface{} {
 	ret := make(map[string]interface{})
 	p := newParser(r)
 
@@ -56,15 +53,15 @@ func Parse(r io.Reader) map[string]interface{} {
 		case sqstr:
 			ret[key] = t.sqstr
 		case int('('):
-			x := expect(num).num
+			row := expect(num).num
 			expect(int(','))
 			if t := p.next(); t.val == int(')') {
-				ret[key] = &Dim{x: x, y: 0}
+				ret[key] = &Shape{Row: row, Col: 1}
 			} else {
 				p.peek = t
-				y := expect(num).num
+				col := expect(num).num
 				expect(int(')'))
-				ret[key] = &Dim{x: x, y: y}
+				ret[key] = &Shape{Row: row, Col: col}
 			}
 		}
 

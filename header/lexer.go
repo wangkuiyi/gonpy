@@ -1,7 +1,6 @@
 package header
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 	"log"
@@ -10,8 +9,13 @@ import (
 )
 
 type lexer struct {
-	*bufio.Reader
+	runeReader
 	peek rune
+}
+
+type runeReader interface {
+	io.Reader
+	ReadRune() (r rune, size int, err error)
 }
 
 type token struct {
@@ -29,10 +33,10 @@ const (
 	boolean = 57348
 )
 
-func newLexer(r io.Reader) *lexer {
+func newLexer(r runeReader) *lexer {
 	return &lexer{
-		Reader: bufio.NewReader(r),
-		peek:   eof,
+		runeReader: r,
+		peek:       eof,
 	}
 }
 
