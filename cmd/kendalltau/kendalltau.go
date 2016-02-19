@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"reflect"
 	"sort"
 	"time"
@@ -107,4 +109,20 @@ func progress(fn func(), format string, args ...interface{}) {
 	log.Print(msg)
 	fn()
 	log.Printf("%s Done in %v", msg, time.Since(start))
+}
+
+func EncodeKendallTauMatrix(w io.Writer, tau []int, row int) {
+	size := int(math.Sqrt(float64(len(tau))))
+	line := make([]string, size)
+
+	csv := csv.NewWriter(w)
+
+	for i := 0; i < size; i++ {
+		for j := 0; j < size; j++ {
+			line[j] = fmt.Sprint(float64(tau[i]) / float64(row))
+		}
+		csv.Write(line)
+	}
+
+	csv.Flush()
 }

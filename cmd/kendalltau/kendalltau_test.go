@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"path"
 	"testing"
 
@@ -37,4 +38,8 @@ func TestKendalTau(t *testing.T) {
 		500)
 	assert.Equal(t, []int{0, 0, 0, 0, 0, 0, 0, 0, 0}, tau)
 	assert.Equal(t, 2, row)
+
+	var buf bytes.Buffer
+	EncodeKendallTauMatrix(&buf, tau, row)
+	assert.Equal(t, "0,0,0\n0,0,0\n0,0,0\n", buf.String())
 }
