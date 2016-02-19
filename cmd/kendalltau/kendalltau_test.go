@@ -32,8 +32,9 @@ func TestKendallTau(t *testing.T) {
 }
 
 func TestKendalTau(t *testing.T) {
-	assert.Equal(t, []int{0, 0, 0, 0, 0, 0, 0, 0, 0},
-		KendallTauMatrix(
-			path.Join(GoPath(), "src/github.com/wangkuiyi/gonpy/testdata/2d.npy"),
-			500))
+	tau, row := KendallTauMatrix(
+		path.Join(GoPath(), "src/github.com/wangkuiyi/gonpy/testdata/2d.npy"),
+		500)
+	assert.Equal(t, []int{0, 0, 0, 0, 0, 0, 0, 0, 0}, tau)
+	assert.Equal(t, 2, row)
 }

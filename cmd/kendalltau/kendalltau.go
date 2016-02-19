@@ -48,11 +48,17 @@ func KendallTau(rank1, rank2 map[int]int) int {
 	return tau
 }
 
+// It returns a square matrix of KendalTau values saved in a []int
+// slice, whose size is the square of number of columns.  It also
+// returns the number of rows of the matrix, so that we can divide Tau
+// by #rows to get the Kendall's Tau value as float64 by its defined.
+//
 // The KendallTau algorithm is O(N^2) with respect to the length of
 // its two rank operands.  If they are too long, it would take too
-// much time to compute.  So we handle the first cap rows of the
-// matrix in filename.
-func KendallTauMatrix(filename string, cap int) []int {
+// much time to compute.  So we handle the first min(cap, Row) rows of
+// the matrix in filename, where Row is the number of rows of the
+// matrix.
+func KendallTauMatrix(filename string, cap int) ([]int, int) {
 	var mat *gonpy.Matrix
 	progress(func() {
 		mat = candy.WithOpened(filename, func(r io.Reader) interface{} {
@@ -92,7 +98,7 @@ func KendallTauMatrix(filename string, cap int) []int {
 	},
 		"Kendall'Tau of all column pairs")
 
-	return ret
+	return ret, mat.Shape.Row
 }
 
 func progress(fn func(), format string, args ...interface{}) {
