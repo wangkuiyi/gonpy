@@ -2,17 +2,24 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"io"
 	"log"
 	"os"
+	"runtime"
 	"time"
 
 	"github.com/topicai/candy"
 	"github.com/wangkuiyi/gonpy"
+	"github.com/wangkuiyi/parallel"
 )
 
 func main() {
+	parallelism := flag.Int("p", 1, "GOMACPROCS value")
+	flag.Parse()
+
+	runtime.GOMAXPROCS(*parallelism)
 	fmt.Println(orderDiff(os.Args[1]))
 }
 
@@ -32,7 +39,7 @@ func orderDiff(filename string) []int {
 		"Loading matrix %s and rank the first column as baseline", filename)
 
 	ret := make([]int, mat.Shape.Col)
-	for col := 1; col < mat.Shape.Col; col++ {
+	parallel.For(0, mat.Shape.Col, 1, func(col int) {
 		progress(func() {
 			r := gonpy.NewColumn(mat, col).Order()
 			for i, b := range baseline {
@@ -42,7 +49,7 @@ func orderDiff(filename string) []int {
 			}
 		},
 			"Ordering column %d and compare with baseline", col)
-	}
+	})
 
 	return ret
 }
