@@ -111,6 +111,16 @@ func KendallTauMatrix(filename string, parallelism int) []int64 {
 	},
 		"Loading matrix %s", filename)
 
+	cap := 500
+	progress(func() {
+		m := mat.Shape.Row
+		if m > cap {
+			m = cap
+		}
+		mat = mat.Slice(0, m)
+	},
+		"Select only the first %d instances", cap)
+
 	progress(func() {
 		baseline = gonpy.NewColumn(mat, 0).Rank()
 	},
