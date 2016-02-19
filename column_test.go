@@ -54,3 +54,17 @@ func TestColumnRank(t *testing.T) {
 	}
 	assert.Equal(t, r, expected)
 }
+
+func TestColumnOrder(t *testing.T) {
+	m := &Matrix{
+		Shape: &header.Shape{Row: 10, Col: 1},
+		Data:  make([]float64, 10),
+	}
+
+	for i := 0; i < 10; i++ {
+		m.Data[i] = math.Sin(float64(i) / 10.0 * math.Pi * 2.0)
+	}
+
+	r := NewColumn(m, 0).Order()
+	assert.Equal(t, []int{8, 7, 9, 6, 0, 5, 1, 4, 2, 3}, r)
+}

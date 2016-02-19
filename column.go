@@ -41,6 +41,12 @@ func (c *Column) Rank() map[int]int {
 	return m
 }
 
+func (c *Column) Order() []int {
+	rkr := newColumnRanker(c)
+	sort.Stable(rkr)
+	return rkr.order
+}
+
 type columnRanker struct {
 	*Column
 	order []int
