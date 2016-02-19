@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"reflect"
 	"sort"
 	"sync/atomic"
+	"time"
 
 	"github.com/topicai/candy"
 	"github.com/wangkuiyi/gonpy"
@@ -96,23 +98,44 @@ func KendallTauPerf(rank1, rank2 map[int]int, parallelism int) int64 {
 }
 
 func KendallTauMatrix(filename string, parallelism int) []int64 {
-	log.Printf("Loading matrix %s ..", filename)
-	mat := candy.WithOpened(filename, func(r io.Reader) interface{} {
-		m, e := gonpy.Load(bufio.NewReader(r))
-		candy.Must(e)
-		return m
-	}).(*gonpy.Matrix)
+	var mat *gonpy.Matrix
+	var baseline map[int]int
+	var r map[int]int
 
-	log.Printf("Computing baseline rank ...")
-	baseline := gonpy.NewColumn(mat, 0).Rank()
+	progress(func() {
+		mat = candy.WithOpened(filename, func(r io.Reader) interface{} {
+			m, e := gonpy.Load(bufio.NewReader(r))
+			candy.Must(e)
+			return m
+		}).(*gonpy.Matrix)
+	},
+		"Loading matrix %s", filename)
+
+	progress(func() {
+		baseline = gonpy.NewColumn(mat, 0).Rank()
+	},
+		"Computing baseline rank")
 
 	ret := make([]int64, mat.Shape.Col)
 	for col := 1; col < mat.Shape.Col; col++ {
-		log.Printf("Rank column %d ...", col)
-		r := gonpy.NewColumn(mat, col).Rank()
+		progress(func() {
+			r = gonpy.NewColumn(mat, col).Rank()
+		},
+			"Rank column %d", col)
 
-		log.Printf("Kendall'Tau of column %d ...", col)
-		ret[col] = KendallTauPerf(baseline, r, parallelism)
+		progress(func() {
+			ret[col] = KendallTauPerf(baseline, r, parallelism)
+		},
+			"Kendall'Tau of column %d", col)
+
 	}
 	return ret
+}
+
+func progress(fn func(), format string, args ...interface{}) {
+	start := time.Now()
+	msg := fmt.Sprintf(format+" ... ", args...)
+	log.Print(msg)
+	fn()
+	log.Printf("%s Done in %v", msg, time.Since(start))
 }
