@@ -119,7 +119,7 @@ func EncodeKendallTauMatrix(w io.Writer, tau []int, row int) {
 
 	for i := 0; i < size; i++ {
 		for j := 0; j < size; j++ {
-			line[j] = fmt.Sprint(float64(tau[i]) / float64(row*row))
+			line[j] = fmt.Sprint(float64(tau[i*size+j]) / float64(row*row))
 		}
 		csv.Write(line)
 	}
