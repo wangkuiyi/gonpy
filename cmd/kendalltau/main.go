@@ -1,10 +1,15 @@
 package main
 
 import (
+	"flag"
 	"fmt"
-	"os"
+	"runtime"
 )
 
 func main() {
-	fmt.Println(KendallTauMatrix(os.Args[1]))
+	parallelism := flag.Int("p", 1, "GOMACPROCS value")
+	flag.Parse()
+
+	runtime.GOMAXPROCS(*parallelism)
+	fmt.Println(KendallTauMatrix(flag.Arg(0), *parallelism))
 }
