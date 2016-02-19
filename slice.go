@@ -14,7 +14,7 @@ func (m *Matrix) Slice(row1, row2 int) *Matrix {
 		log.Panicf("row1 (%d) out of range [0, %d)", row1, m.Shape.Row)
 	}
 	if row2 <= 0 || row2 > m.Shape.Row {
-		log.Panicf("row2 (%d) out of range [0, %d)", row2, m.Shape.Row)
+		log.Panicf("row2 (%d) out of range [0, %d]", row2, m.Shape.Row)
 	}
 
 	return &Matrix{
