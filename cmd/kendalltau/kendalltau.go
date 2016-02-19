@@ -11,9 +11,10 @@ import (
 
 	"github.com/topicai/candy"
 	"github.com/wangkuiyi/gonpy"
+	"github.com/wangkuiyi/parallel"
 )
 
-func KendallTau(rank1, rank2 map[int]int) int64 {
+func KendallTau(rank1, rank2 map[int]int) int {
 	ids1 := make([]int, 0, len(rank1))
 	for k := range rank1 {
 		ids1 = append(ids1, k)
@@ -30,7 +31,7 @@ func KendallTau(rank1, rank2 map[int]int) int64 {
 		log.Panicf("kendall's Tau is a distance only of two ranks are the same.")
 	}
 
-	var tau int64
+	var tau int
 
 	ids := ids1
 	for i := 0; i < len(ids)-1; i++ {
@@ -47,11 +48,12 @@ func KendallTau(rank1, rank2 map[int]int) int64 {
 	return tau
 }
 
-func KendallTauMatrix(filename string) []int64 {
+// The KendallTau algorithm is O(N^2) with respect to the length of
+// its two rank operands.  If they are too long, it would take too
+// much time to compute.  So we handle the first cap rows of the
+// matrix in filename.
+func KendallTauMatrix(filename string, cap int) []int {
 	var mat *gonpy.Matrix
-	var baseline map[int]int
-	var r map[int]int
-
 	progress(func() {
 		mat = candy.WithOpened(filename, func(r io.Reader) interface{} {
 			m, e := gonpy.Load(bufio.NewReader(r))
@@ -61,7 +63,6 @@ func KendallTauMatrix(filename string) []int64 {
 	},
 		"Loading matrix %s", filename)
 
-	cap := 500
 	progress(func() {
 		m := mat.Shape.Row
 		if m > cap {
@@ -69,26 +70,28 @@ func KendallTauMatrix(filename string) []int64 {
 		}
 		mat = mat.Slice(0, m)
 	},
-		"Select only the first %d instances", cap)
+		"Select only the first %d rows", cap)
 
+	ranks := make([]map[int]int, mat.Shape.Col*mat.Shape.Col)
 	progress(func() {
-		baseline = gonpy.NewColumn(mat, 0).Rank()
+		parallel.For(0, mat.Shape.Col, 1, func(col int) {
+			ranks[col] = gonpy.NewColumn(mat, col).Rank()
+		})
 	},
-		"Computing baseline rank")
+		"Rank columns")
 
-	ret := make([]int64, mat.Shape.Col)
-	for col := 1; col < mat.Shape.Col; col++ {
-		progress(func() {
-			r = gonpy.NewColumn(mat, col).Rank()
-		},
-			"Rank column %d", col)
+	ret := make([]int, mat.Shape.Col*mat.Shape.Col)
+	progress(func() {
+		parallel.For(0, mat.Shape.Col-1, 1, func(col1 int) {
+			parallel.For(col1+1, mat.Shape.Col, 1, func(col2 int) {
+				tau := KendallTau(ranks[col1], ranks[col2])
+				ret[col1*mat.Shape.Col+col2] = tau
+				ret[col2*mat.Shape.Col+col1] = tau
+			})
+		})
+	},
+		"Kendall'Tau of all column pairs")
 
-		progress(func() {
-			ret[col] = KendallTau(baseline, r)
-		},
-			"Kendall'Tau of column %d", col)
-
-	}
 	return ret
 }
 

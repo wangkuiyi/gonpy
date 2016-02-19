@@ -19,20 +19,21 @@ func TestKendallTau(t *testing.T) {
 		200: 2,
 		300: 1,
 	}
-	assert.Equal(t, int64(1), KendallTau(rank1, rank2))
-	assert.Equal(t, int64(1), KendallTau(rank2, rank1))
+	assert.Equal(t, 1, KendallTau(rank1, rank2))
+	assert.Equal(t, 1, KendallTau(rank2, rank1))
 
 	rank2 = map[int]int{
 		100: 2,
 		200: 1,
 		300: 0,
 	}
-	assert.Equal(t, int64(3), KendallTau(rank1, rank2))
-	assert.Equal(t, int64(3), KendallTau(rank2, rank1))
+	assert.Equal(t, 3, KendallTau(rank1, rank2))
+	assert.Equal(t, 3, KendallTau(rank2, rank1))
 }
 
 func TestKendalTau(t *testing.T) {
-	assert.Equal(t, []int64{0, 0, 0},
+	assert.Equal(t, []int{0, 0, 0, 0, 0, 0, 0, 0, 0},
 		KendallTauMatrix(
-			path.Join(GoPath(), "src/github.com/wangkuiyi/gonpy/testdata/2d.npy")))
+			path.Join(GoPath(), "src/github.com/wangkuiyi/gonpy/testdata/2d.npy"),
+			500))
 }

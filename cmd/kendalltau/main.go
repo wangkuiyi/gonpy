@@ -11,5 +11,6 @@ func main() {
 	flag.Parse()
 
 	runtime.GOMAXPROCS(*parallelism)
-	fmt.Println(KendallTauMatrix(flag.Arg(0)))
+
+	fmt.Println(KendallTauMatrix(flag.Arg(0), 500))
 }
