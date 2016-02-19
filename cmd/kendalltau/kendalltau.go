@@ -46,16 +46,22 @@ func KendallTau(rank1, rank2 map[int]int) int64 {
 }
 
 func KendallTauMatrix(filename string) []int64 {
+	log.Printf("Loading matrix %s ..", filename)
 	mat := candy.WithOpened(filename, func(r io.Reader) interface{} {
 		m, e := gonpy.Load(bufio.NewReader(r))
 		candy.Must(e)
 		return m
 	}).(*gonpy.Matrix)
 
-	ret := make([]int64, mat.Shape.Col)
+	log.Printf("Computing baseline rank ...")
 	baseline := gonpy.NewColumn(mat, 0).Rank()
+
+	ret := make([]int64, mat.Shape.Col)
 	for col := 1; col < mat.Shape.Col; col++ {
+		log.Printf("Rank column %d ...", col)
 		r := gonpy.NewColumn(mat, col).Rank()
+
+		log.Printf("Kendall'Tau of column %d ...", col)
 		ret[col] = KendallTau(baseline, r)
 	}
 	return ret
