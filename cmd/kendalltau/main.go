@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"fmt"
+	"os"
 	"runtime"
 )
 
@@ -13,5 +13,6 @@ func main() {
 
 	runtime.GOMAXPROCS(*parallelism)
 
-	fmt.Println(KendallTauMatrix(flag.Arg(0), *capRows))
+	tau, row := KendallTauMatrix(flag.Arg(0), *capRows)
+	EncodeKendallTauMatrix(os.Stdout, tau, row)
 }
